@@ -1,57 +1,90 @@
-from pathlib import Path
+# import the necessary packages
+from imutils.video import VideoStream
 from fastapi import FastAPI
-from fastapi import Request, Response
-from fastapi import Header
-from fastapi.templating import Jinja2Templates
-import picamera
+from fastapi.responses import StreamingResponse
+import threading
+import imutils
+import time
+import cv2
+import uvicorn
+from multiprocessing import Process, Queue
+import subprocess
+import numpy as np
 
-
+HTTP_PORT = 6064
+lock = threading.Lock()
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
-CHUNK_SIZE = 1024*1024
-video_path = Path("Show Me the Money!   Jerry Maguire 1 8) Movie CLIP (1996) HD-FFrag8ll85w.webm")
-class StreamingOutput(object):
-    def __init__(self):
-        self.frame = None
-        self.buffer = io.BytesIO()
-        self.condition = Condition()
 
-    def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):
-            # New frame, copy the existing buffer's content and notify all
-            # clients it's available
-            self.buffer.truncate()
-            with self.condition:
-                self.frame = self.buffer.getvalue()
-                self.condition.notify_all()
-            self.buffer.seek(0)
-        return self.buffer.write(buf)
+manager = None
+count_keep_alive = 0
+
+width = 1280
+height = 720
+
+url_rtsp = 'rtsp://admin:admin123@192.168.0.150/'
+
+def start_stream(url_rtsp, manager):
+    global width
+    global height
+
+    vs = VideoStream(url_rtsp).start()
+    while True:
+        time.sleep(0.2)
+
+        frame = vs.read()
+        frame = imutils.resize(frame, width=680)
+        output_frame = frame.copy()
+
+        if output_frame is None:
+            continue
+        (flag, encodedImage) = cv2.imencode(".jpg", output_frame)
+        if not flag:
+            continue
+        manager.put(encodedImage)
+
+
+def streamer():
+    try:
+        while manager:
+            yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
+                   bytearray(manager.get()) + b'\r\n')
+    except GeneratorExit:
+        print("cancelled")
+
+
+def manager_keep_alive(p):
+    global count_keep_alive
+    global manager
+    while count_keep_alive:
+        time.sleep(1)
+        print(count_keep_alive)
+        count_keep_alive -= 1
+    p.kill()
+    time.sleep(.5)
+    p.close()
+    manager.close()
+    manager = None
+
+
 
 @app.get("/")
-async def read_root(request: Request):
-    return templates.TemplateResponse("index.htm", context={"request": request})
+async def video_feed():
+    return StreamingResponse(streamer(), media_type="multipart/x-mixed-replace;boundary=frame")
 
 
-@app.get("/video")
-async def video_endpoint(range: str = Header(None)):
-    
-    headers = {
-        'Age': 0,
-        'Cache-Control': 'no-cache, private',
-        'Pragma':'no-cache',
-        'Content-Type':'multipart/x-mixed-replace; boundary=FRAME'
+@app.get("/keep-alive")
+def keep_alive():
+    global manager
+    global count_keep_alive
+    count_keep_alive = 100
+    if not manager:
+        manager = Queue()
+        p = Process(target=start_stream, args=(url_rtsp, manager,))
+        p.start()
+        threading.Thread(target=manager_keep_alive, args=(p,)).start()
 
-    }
-    return Response(data, status_code=206, headers=headers, media_type="video/webm")
 
-
-with picamera.PiCamera(resolution='640x480', framerate=24) as camera:
-    output = StreamingOutput()
-    #Uncomment the next line to change your Pi's Camera rotation (in degrees)
-    #camera.rotation = 90
-    camera.start_recording(output, format='mjpeg')
-    try:
-        while True:
-            pass
-    except:
-        camera.stop_recording()
+# check to see if this is the main thread of execution
+if __name__ == '__main__':
+    # start the flask app
+    uvicorn.run(app, host="0.0.0.0", port=HTTP_PORT, access_log=False)
