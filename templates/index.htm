@@ -9,7 +9,27 @@
     <center>
         <h1>Raspberry Pi - Surveillance Camera</h1>
     </center>
-    <center><img src="http://192.168.5.222:7000/stream.mjpg" width="640" height="480"></center>
+    <center><img src="http://192.168.4.38:7000/stream.mjpg" width="640" height="480"></center>
 </body>
+<button onclick="moveLeft()">left</button>
+<button onclick="moveRight()">right</button>
 
 </html>
+<Script>
+    function moveLeft(){
+        const options = {method: 'GET'};
+        fetch('http://192.168.4.38:8000/esp?position=1', options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+}
+
+    function moveRight(){
+        const options = {method: 'GET'};
+        fetch('http://192.168.4.38:8000/esp?position=~', options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+    }
+
+</Script>
