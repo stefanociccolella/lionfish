@@ -1,38 +1,53 @@
-from pathlib import Path
 from fastapi import FastAPI
 from fastapi import Request
-from fastapi.responses import StreamingResponse
 from fastapi import Header
 from fastapi.templating import Jinja2Templates
-import picamera
-from threading import Condition
-import io
-import logging
-import socketserver
-from http import server
 import time
 from multiprocessing import Process
-import threading
+from pydantic import Json
 import uvicorn
 from start_camera import start_camera
 import serial
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
+class gamepad(BaseModel):
+    axes: list[int]
+    buttons: list[int]
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 templates = Jinja2Templates(directory="templates")
 kill_cam = 0
-arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=.1)
+# arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=.1)
 
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("index.htm", context={"request": request})
 
-@app.get("/esp")
-async def write_read(position):
-    arduino.write(bytes(position, 'utf-8'))
-    time.sleep(0.05)
-    data = arduino.readline()
-    return data
+# @app.get("/esp")
+# async def write_read(position):
+#     arduino.write(bytes(position, 'utf-8'))
+#     time.sleep(0.05)
+#     data = arduino.readline()
+#     return str(data)
+
+@app.post("/controller_status")
+async def controller_data(gamepad: gamepad):
+    print(gamepad)
+
 
 # TODO bring USB ethernet dongle
 
