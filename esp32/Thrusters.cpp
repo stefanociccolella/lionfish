@@ -66,6 +66,14 @@ void setup() {
     servo6.writeMicroseconds(Idle); // send "stop" signal to ESC.
     delay(1000); // delay to allow the ESC to recognize the stopped signal
 }
+void write_motors(int t1, int t2, int t3, int t4, int t5, int t6){
+  servo1.writeMicroseconds(t1); 
+  servo2.writeMicroseconds(t2);
+  servo3.writeMicroseconds(t3);
+  servo4.writeMicroseconds(t4);
+  servo5.writeMicroseconds(t5);
+  servo6.writeMicroseconds(t6);
+}
 
 void loop() {
   
@@ -80,68 +88,30 @@ void loop() {
   
     if(incomingByte == 49) // Ascending 1
     {
-      servo1.writeMicroseconds(Idle); 
-      servo2.writeMicroseconds(IdleTB);
-      servo3.writeMicroseconds(Idle);
-      servo4.writeMicroseconds(Idle);
-      servo5.writeMicroseconds(Idle);
-      servo6.writeMicroseconds(Idle);
+      write_motors(Idle,IdleTB,Idle,Idle,Idle,Idle)
       delay(900);
-
-
-      servo1.writeMicroseconds(CCW);
-      servo2.writeMicroseconds(CW);
+      write_motors(CCW,CW,Idle,Idle,Idle,Idle)
     }
 
     else if(incomingByte == 50) // Descending 2
     {
-
-      servo1.writeMicroseconds(Idle); 
-      servo2.writeMicroseconds(IdleTB);
-      servo3.writeMicroseconds(Idle);
-      servo4.writeMicroseconds(Idle);
-      servo5.writeMicroseconds(Idle);
-      servo6.writeMicroseconds(Idle);
+      write_motors(Idle,IdleTB,Idle,Idle,Idle,Idle)
       delay(900);
-
-
-      servo1.writeMicroseconds(CW);
-      servo2.writeMicroseconds(CCW);
+      write_motors(CW,CCW,Idle,Idle,Idle,Idle)
     }
 
     else if(incomingByte == 51) // Forward 3
     {
-
-      servo1.writeMicroseconds(Idle); 
-      servo2.writeMicroseconds(IdleTB);
-      servo3.writeMicroseconds(Idle);
-      servo4.writeMicroseconds(Idle);
-      servo5.writeMicroseconds(Idle);
-      servo6.writeMicroseconds(Idle);
+      write_motors(Idle,IdleTB,Idle,Idle,Idle,Idle)
       delay(900);
-
-
-      servo3.writeMicroseconds(CW);
-      servo4.writeMicroseconds(CCW);
-      servo5.writeMicroseconds(CW);
-      servo6.writeMicroseconds(CCW);
+      write_motors(Idle,IdleTB,CW,CCW,CW,CCW)
     }
 
     else if(incomingByte == 52) // Backward 4
     {
-      servo1.writeMicroseconds(Idle); 
-      servo2.writeMicroseconds(IdleTB);
-      servo3.writeMicroseconds(Idle);
-      servo4.writeMicroseconds(Idle);
-      servo5.writeMicroseconds(Idle);
-      servo6.writeMicroseconds(Idle);
+      write_motors(Idle,IdleTB,Idle,Idle,Idle,Idle)
       delay(900);
-
-
-      servo3.writeMicroseconds(CCW);
-      servo4.writeMicroseconds(CW);
-      servo5.writeMicroseconds(CCW);
-      servo6.writeMicroseconds(CW);
+      write_motors(Idle,IdleTB,CCW,CW,CCW,CW)
     }
 
     else if(incomingByte == 53) // Lateral Left 5

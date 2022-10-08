@@ -46,7 +46,7 @@ async def read_root(request: Request):
 
 @app.post("/controller_status")
 async def controller_data(gamepad: gamepad):
-    print(gamepad)
+    print(gamepad.axes[1])
 
 
 # TODO bring USB ethernet dongle
