@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, BaseConfig
 import numpy as np
 from numpy import single
+import ast
 
 # BaseConfig.arbitrary_types_allowed = True
 
@@ -36,7 +37,7 @@ app.add_middleware(
 )
 templates = Jinja2Templates(directory="templates")
 kill_cam = 0
-# arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=.1)
+arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=.1)
 
 @app.get("/")
 async def read_root(request: Request):
@@ -55,6 +56,18 @@ async def controller_data(gamepad: gamepad):
     control = np.append(gamepad.axes, [gamepad.buttons[4], gamepad.buttons[6]])
     control = np.round(control, decimals = 2)
     print(control.astype(single).tobytes())
+    arduino.write(control.astype(single).tobytes())
+    # while True:                                                          #random test, that whether data is updated
+    time.sleep(.02)#delay
+    dat=arduino.readline()#read a line data
+
+    if dat!=b''and dat!=b'\r\n':
+        dats=str(dat)
+        dat1=dats.replace("b","")
+        dat2=dat1.replace("'",'')
+        dat3=dat2[:-4]
+        list_=ast.literal_eval(dat3) #list_ value can you use in program
+        print(dat3)
     # print(control)
     # print(control.tobytes())
 
