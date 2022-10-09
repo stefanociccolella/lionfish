@@ -1,3 +1,4 @@
+from pickletools import float8
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import Header
@@ -9,10 +10,14 @@ import uvicorn
 from start_camera import start_camera
 import serial
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, BaseConfig
+import numpy as np
+from numpy import single
+
+# BaseConfig.arbitrary_types_allowed = True
 
 class gamepad(BaseModel):
-    axes: list[int]
+    axes: list[float]
     buttons: list[int]
 
 app = FastAPI()
@@ -46,7 +51,12 @@ async def read_root(request: Request):
 
 @app.post("/controller_status")
 async def controller_data(gamepad: gamepad):
-    print(gamepad.axes[1])
+    # print(np.append(np.array(gamepad.axes),gamepad.buttons[4], gamepad.buttons[6]))
+    control = np.append(gamepad.axes, [gamepad.buttons[4], gamepad.buttons[6]])
+    control = np.round(control, decimals = 2)
+    print(control.astype(single).tobytes())
+    # print(control)
+    # print(control.tobytes())
 
 
 # TODO bring USB ethernet dongle

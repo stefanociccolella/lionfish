@@ -10,6 +10,8 @@ setInterval(() => {
         // a gamepad is connected and has an index
         const myGamepad = navigator.getGamepads()[gamepadIndex];
         console.log({"buttons": myGamepad.buttons.map(e => e.value)})
+        console.log(JSON.stringify({"axes": myGamepad.axes.map(e => parseFloat(e.value))}))
+
         const options = {
             method: 'POST', 
             headers: {
