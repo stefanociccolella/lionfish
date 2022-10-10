@@ -56,6 +56,15 @@ async def controller_data(gamepad: gamepad):
     # print(np.append(np.array(gamepad.axes),gamepad.buttons[4], gamepad.buttons[6]))
     control = np.append(gamepad.axes, [gamepad.buttons[4], gamepad.buttons[6]])
     control = np.round(control, decimals = 2)
+    identity = np.array([
+        [-1, 1, 0,0,0,1], 
+        [1,-1,0,0,0,1],
+        [0,0,1,-1,1,0],
+        [0,0,-1,-1,1,0],
+        [0,0,1,1,1,0],
+        [0,0,-1,1,1,0]
+        ]).T # rewrite this so its already transposed
+    control = np.dot(control, identity)
     print('from pi', np.array2string(control.astype(single),separator=',').encode('utf-8'))
     # arduino.write(control.astype(single).tobytes)
 
