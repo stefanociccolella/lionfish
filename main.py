@@ -55,19 +55,14 @@ async def controller_data(gamepad: gamepad):
     # print(np.append(np.array(gamepad.axes),gamepad.buttons[4], gamepad.buttons[6]))
     control = np.append(gamepad.axes, [gamepad.buttons[4], gamepad.buttons[6]])
     control = np.round(control, decimals = 2)
-    print(control.astype(single).tobytes())
-    arduino.write(control.astype(single).tobytes())
-    # while True:                                                          #random test, that whether data is updated
-    time.sleep(.02)#delay
-    dat=arduino.readline()#read a line data
+    print('from pi', np.array2string(control.astype(single),separator=',').encode('utf-8'))
+    # arduino.write(control.astype(single).tobytes)
 
-    if dat!=b''and dat!=b'\r\n':
-        dats=str(dat)
-        dat1=dats.replace("b","")
-        dat2=dat1.replace("'",'')
-        dat3=dat2[:-4]
-        list_=ast.literal_eval(dat3) #list_ value can you use in program
-        print(dat3)
+    arduino.write(np.array2string(control.astype(single), separator=',').encode('utf-8'))
+    # while True:                                                          #random test, that whether data is updated
+    time.sleep(.1)#delay
+    dat=arduino.readline()#read a line data
+    print('from esp', dat)
     # print(control)
     # print(control.tobytes())
 
