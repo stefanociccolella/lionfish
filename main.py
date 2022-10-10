@@ -43,6 +43,7 @@ arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=.1)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.htm", context={"request": request})
 
+# random comment
 # @app.get("/esp")
 # async def write_read(position):
 #     arduino.write(bytes(position, 'utf-8'))
