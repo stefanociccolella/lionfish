@@ -21,7 +21,7 @@ setInterval(() => {
                                 "buttons": myGamepad.buttons.map(e => e.value)
                             })
         };
-        fetch('http://192.168.4.38:8000/controller_status', options)
+        fetch('http://169.254.127.13:8000/controller_status', options)
             .then(response => response.json())
             .then(response => console.log(response))
             .catch(err => console.error(err));
@@ -32,7 +32,7 @@ setInterval(() => {
 
 function moveLeft() {
     const options = { method: 'GET' };
-    fetch('http://192.168.4.38:8000/esp?position=1', options)
+    fetch('http://169.254.127.13:8000/esp?position=1', options)
         .then(response => response.json())
         .then(response => console.log(response))
         .catch(err => console.error(err));
@@ -40,7 +40,7 @@ function moveLeft() {
 
 function moveRight() {
     const options = { method: 'GET' };
-    fetch('http://192.168.4.38:8000/esp?position=~', options)
+    fetch('http://169.254.127.13:8000/esp?position=~', options)
         .then(response => response.json())
         .then(response => console.log(response))
         .catch(err => console.error(err));
