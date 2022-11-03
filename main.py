@@ -59,8 +59,8 @@ async def controller_data(gamepad: gamepad):
     identity = np.array([
         [0,0,0,-1,-1,1], 
         [0,0,0,-1,1,-1],
-        [1,-1,1,0,0,0],
         [1,1,1,0,0,0],
+        [1,-1,1,0,0,0],
         [-1,-1,1,0,0,0],
         [-1,1,1,0,0,0]
         ]).T # rewrite this so its already transposed

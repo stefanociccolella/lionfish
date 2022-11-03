@@ -23,7 +23,7 @@ Servo servo6;
 int CCW = 1400;
 int CW = 1520;
 int Idle = 1480; //1480
-int IdleTB = 0b0000; //1475
+int IdleTB = 1485; //1475
 const int numChars = 6;
 char receivedChars[numChars];
 float motorinstructions[numChars];
@@ -59,7 +59,7 @@ void setup() {
   servo3.writeMicroseconds(Idle);
   servo4.writeMicroseconds(Idle);
   servo5.writeMicroseconds(Idle);
-  servo6.writeMicroseconds(Idle);
+  servo6.writeMicroseconds(IdleTB);
 }
 
 void loop() {
@@ -104,7 +104,7 @@ void loop() {
     servo3.writeMicroseconds(190 * motorinstructions[2] + Idle);
     servo4.writeMicroseconds(190 * motorinstructions[3] + Idle);
     servo5.writeMicroseconds(190 * motorinstructions[4] + Idle);
-    servo6.writeMicroseconds(190 * motorinstructions[5] + Idle);
+    servo6.writeMicroseconds(190 * motorinstructions[5] + IdleTB);
 }
 
 void showPrintData() {
