@@ -17,11 +17,13 @@ import ast
 
 # BaseConfig.arbitrary_types_allowed = True
 
+# global sensor_data = []
 class gamepad(BaseModel):
     axes: list[float]
     buttons: list[int]
 
 app = FastAPI()
+app.sensor_data = []
 
 origins = [
     "http://localhost",
@@ -75,11 +77,15 @@ async def controller_data(gamepad: gamepad):
     print('from esp', dat)
 
     print('from esp', dat[0:-2].decode().split(","))
-    print(np.array(dat[0:-2].decode().split(",")))
+    np.array(dat[0:-2].decode().split(",")).tofile('fid.csv', sep=',')
     # print(np.frombuffer(dat, count=3))
     # print(control)
     # print(control.tobytes())
 
+@app.get("/get_sensors")
+async def get_sensors():
+    f = open("fid.csv", "r")
+    return (f.read())
 
 # TODO bring USB ethernet dongle
 

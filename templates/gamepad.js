@@ -9,17 +9,18 @@ setInterval(() => {
     if (gamepadIndex !== undefined) {
         // a gamepad is connected and has an index
         const myGamepad = navigator.getGamepads()[gamepadIndex];
-        console.log({"buttons": myGamepad.buttons.map(e => e.value)})
-        console.log(JSON.stringify({"axes": myGamepad.axes.map(e => parseFloat(e.value))}))
+        console.log({ "buttons": myGamepad.buttons.map(e => e.value) })
+        console.log(JSON.stringify({ "axes": myGamepad.axes.map(e => parseFloat(e.value)) }))
 
         const options = {
-            method: 'POST', 
+            method: 'POST',
             headers: {
                 "Content-type": "application/json"
-            }, 
-            body: JSON.stringify({"axes": myGamepad.axes, 
-                                "buttons": myGamepad.buttons.map(e => e.value)
-                            })
+            },
+            body: JSON.stringify({
+                "axes": myGamepad.axes,
+                "buttons": myGamepad.buttons.map(e => e.value)
+            })
         };
         fetch('http://169.254.127.13:8000/controller_status', options)
             .then(response => response.json())
@@ -46,8 +47,10 @@ function moveRight() {
         .catch(err => console.error(err));
 }
 
-setInterval(() => {
+async function get_sensors() {
     const datafield1 = document.getElementById("datafield1");
-    datafield1.textContent = "Greetings from Alex";
+    datafield1.textContent = await fetch('http://169.254.127.13:8000/get_sensors').then(response => response.json());
+    // get_sensors();
+}
 
-}, 1000)
+setInterval(() => get_sensors(), 1000)
