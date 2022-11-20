@@ -73,6 +73,10 @@ async def controller_data(gamepad: gamepad):
     time.sleep(.1)#delay
     dat=arduino.readline()#read a line data
     print('from esp', dat)
+
+    print('from esp', dat[0:-2].decode().split(","))
+    print(np.array(dat[0:-2].decode().split(",")))
+    # print(np.frombuffer(dat, count=3))
     # print(control)
     # print(control.tobytes())
 

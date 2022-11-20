@@ -45,3 +45,9 @@ function moveRight() {
         .then(response => console.log(response))
         .catch(err => console.error(err));
 }
+
+setInterval(() => {
+    const datafield1 = document.getElementById("datafield1");
+    datafield1.textContent = "Greetings from Alex";
+
+}, 1000)

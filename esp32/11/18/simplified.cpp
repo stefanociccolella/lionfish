@@ -81,7 +81,6 @@ void loop()
     char rc;
     int i = 0;
     // sensorArray = 
-    readSensors();
 
     // incoming instructions
     while (Serial.available() > 0 && printData == false)
@@ -119,7 +118,9 @@ void loop()
         }
     }
     if (Serial.available() > 0 ){
-        Serial.write(lead);
+        readSensors();
+
+        Serial.write(sensorArray);
     }
 
     servo1.writeMicroseconds(190 * motorinstructions[0] + Idle);
@@ -132,6 +133,8 @@ void loop()
 
 void readSensors()
 {
+    // sensorArray[0] = digitalRead(leakPin)   
     leak = digitalRead(leakPin); // Read the Leak Sensor Pin
     digitalWrite(ledPin, leak);  // Sets the LED to the Leak Sensor's Value
+    
 }
