@@ -1,11 +1,36 @@
-console.log('hello world')
 let gamepadIndex;
 window.addEventListener('gamepadconnected', (event) => {
     gamepadIndex = event.gamepad.index;
+    let gamepadStatus = document.getElementById("gamepadStatus");
+    gamepadStatus.textContent = "Gamepad Detected"
 });
 
-// now print the axes on the connected gamepad, for example: 
-setInterval(() => {
+window.addEventListener('gamepaddisconnected', (event) => {
+    gamepadIndex = event.gamepad.index;
+    let gamepadStatus = document.getElementById("gamepadStatus");
+    gamepadStatus.textContent = "Gamepad Not Detected"
+});
+
+async function get_sensors() {
+    let response = await fetch('http://169.254.127.13:8000/get_sensors').then(response => response.json());
+    let sensors = JSON.parse(response.toString().replace(/'/g, '"'));
+    document.getElementById("Leak").innerHTML = sensors.Leak;
+
+    // get_sensors();
+    // datafield1.textContent
+}
+
+function displayRadioValue() {
+    let ele = document.getElementsByName('Mode');
+    for (i = 0; i < ele.length; i++) {
+        if (ele[i].checked) {
+            // console.log(ele[i].value)
+            return ele[i].value;
+        }
+    }
+}
+
+function GamepadMode() {
     if (gamepadIndex !== undefined) {
         // a gamepad is connected and has an index
         const myGamepad = navigator.getGamepads()[gamepadIndex];
@@ -26,31 +51,34 @@ setInterval(() => {
             .then(response => response.json())
             .then(response => console.log(response))
             .catch(err => console.error(err));
-
     }
-}, 1000) // print axes 10 times per second
-
-
-function moveLeft() {
-    const options = { method: 'GET' };
-    fetch('http://169.254.127.13:8000/esp?position=1', options)
-        .then(response => response.json())
-        .then(response => console.log(response))
-        .catch(err => console.error(err));
+    else {
+        console.log("Gamepad not detected")
+    }
 }
 
-function moveRight() {
-    const options = { method: 'GET' };
-    fetch('http://169.254.127.13:8000/esp?position=~', options)
-        .then(response => response.json())
-        .then(response => console.log(response))
-        .catch(err => console.error(err));
-}
 
-async function get_sensors() {
-    const datafield1 = document.getElementById("datafield1");
-    datafield1.textContent = await fetch('http://169.254.127.13:8000/get_sensors').then(response => response.json());
-    // get_sensors();
-}
+// main loop for the system
+setInterval(() => {
+    let mode = displayRadioValue();
+    console.log(mode)
+    switch (mode) {
+        case "Controller":
+            document.getElementById("CurrentMode").innerHTML = "Current Mode: Controller";
+            GamepadMode();
+            break;
+        case "AutoDepth":
+            document.getElementById("CurrentMode").innerHTML = "Current Mode: AutoDepth";
+            break;
+        case "AutoHeading":
+            document.getElementById("CurrentMode").innerHTML = "Current Mode: AutoHeading";
+            break;
+    }
 
-setInterval(() => get_sensors(), 1000)
+    get_sensors();
+
+}, 500) // print axes 10 times per second
+
+
+//TODO Round controller to nearest 5%
+//TODO anything under 10% should default to 0%

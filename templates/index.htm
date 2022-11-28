@@ -10,31 +10,21 @@
 
 <head>
   <style>
-    p,
-    button {
-      max-width: 50ch;
-      font-family: Roboto, Arial, sans-serif;
-      font-size: 1.125rem;
-      line-height: 1.5em;
+    p {
+      display: inline;
+    }
+    .column {
+      float: left;
+      width: 20vw;
+    }
+    .box {
+      outline-style: solid;
+      float: left;
+      width: 20vw;
     }
 
-    button {
-      color: white;
-      background: #369;
-      border: 0;
-      padding: 0.5rem 1rem;
-    }
-
-    button:hover {
-      background: #136;
-    }
-
-    #amdfc-controller {
-      position: fixed !important;
-      bottom: 1vmin;
-      right: 1vmin;
-      max-width: 350px;
-      width: 40vw;
+    .data {
+      display: inline;
     }
   </style>
   <title>Lionfish Dispatcher - Surveillance Camera</title>
@@ -45,9 +35,26 @@
     <h1>Lionfish Dispatcher - Surveillance Camera</h1>
   </center>
   <center><img src="http://169.254.127.13:7000/stream.mjpg" width="640" height="480"></center>
-  <p id="datafield1">to be updated</p>
+  <div id="gamepadStatus">Gamepad Not Detected</div>
+  <div class="column">
+    <div class="box">
+      <p>Leak (1 is leak detected)</p>
+      <p class="data" id="Leak">?</p>
+    </div>
+    <div class="box" id="CurrentMode"></div>
+  </div>
+
+  <fieldset>
+    <legend>Please select Mode:</legend>
+
+      <input type="radio" id="Controller" value="Controller" name="Mode" checked="checked">
+      <label for="Controller">Controller</label><br>
+      <input type="radio" id="AutoDepth" name="Mode" value="AutoDepth">
+      <label for="AutoDepth">AutoDepth</label><br>
+      <input type="radio" id="AutoHeading" name="Mode" value="AutoHeading">
+      <label for="AutoHeading">AutoHeading</label>
+
+  </fieldset>
 </body>
-<!-- <button onclick="moveLeft()">left</button>
-<button onclick="moveRight()">right</button> -->
 
 </html>

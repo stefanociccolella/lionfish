@@ -55,6 +55,7 @@ async def read_root(request: Request):
 
 @app.post("/controller_status")
 async def controller_data(gamepad: gamepad):
+    # t1 = time.time_ns()
     # print(np.append(np.array(gamepad.axes),gamepad.buttons[4], gamepad.buttons[6]))
     control = np.append(gamepad.axes, [gamepad.buttons[4], gamepad.buttons[6]])
     control = np.round(control, decimals = 2)
@@ -67,25 +68,33 @@ async def controller_data(gamepad: gamepad):
         [-1,1,1,0,0,0]
         ]).T # rewrite this so its already transposed
     control = np.dot(control, identity)
-    print('from pi', np.array2string(control.astype(single),separator=',').encode('utf-8'))
+    # print('from pi', np.array2string(control.astype(single),separator=',').encode('utf-8'))
     # arduino.write(control.astype(single).tobytes)
 
     arduino.write(np.array2string(control.astype(single), separator=',').encode('utf-8'))
     # while True:                                                          #random test, that whether data is updated
     time.sleep(.1)#delay
     dat=arduino.readline()#read a line data
-    print('from esp', dat)
+    with open("data.json", "w") as f:
+        f.write(dat.decode())
+    # print('from esp', dat)
 
-    print('from esp', dat[0:-2].decode().split(","))
-    np.array(dat[0:-2].decode().split(",")).tofile('fid.csv', sep=',')
+    # print('from esp', dat[0:-2].decode().split(","))
+    # fromESP = np.array(dat[0:-2].decode().split(","))
+    # Labels = ['leak', 'internal_temp', 'pressure','water_temperature','depth','altitude','acceleration_x','acceleration_y','acceleration_z','gyroscope_x','gyroscope_y','gyroscope_z','magnometer_x','magnometer_y','magnometer_z','IMU_temp']
+    # toDisk = {Labels[i]: fromESP[i] for i in range(len(Labels))}
+    # print(toDisk)
+
+    # np.array(dat[0:-2].decode().split(",")).tofile('fid.csv', sep=',')
+    # print(time.time_ns() - t1)
     # print(np.frombuffer(dat, count=3))
     # print(control)
     # print(control.tobytes())
 
 @app.get("/get_sensors")
 async def get_sensors():
-    f = open("fid.csv", "r")
-    return (f.read())
+    with open("data.json", "r") as f:
+        return (f.read())
 
 # TODO bring USB ethernet dongle
 
