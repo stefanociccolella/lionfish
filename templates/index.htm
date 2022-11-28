@@ -45,7 +45,7 @@
   </div>
 
   <fieldset>
-    <legend>Please select Mode:</legend>
+    <legend style="float:left">Please select Mode:</legend>
 
       <input type="radio" id="Controller" value="Controller" name="Mode" checked="checked">
       <label for="Controller">Controller</label><br>
@@ -54,6 +54,12 @@
       <input type="radio" id="AutoHeading" name="Mode" value="AutoHeading">
       <label for="AutoHeading">AutoHeading</label>
 
+  </fieldset>
+  <fieldset>
+    <legend>AutoDepth:</legend>
+    <input id="depth" type="number" value="0"  min="0"/>
+    <label for="depthOn">Turn On AutoDepth</label>
+    <input  id="depthOn" type="checkbox" />
   </fieldset>
 </body>
 

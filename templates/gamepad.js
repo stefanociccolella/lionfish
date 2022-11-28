@@ -15,6 +15,8 @@ async function get_sensors() {
     let response = await fetch('http://169.254.127.13:8000/get_sensors').then(response => response.json());
     let sensors = JSON.parse(response.toString().replace(/'/g, '"'));
     document.getElementById("Leak").innerHTML = sensors.Leak;
+    // console.log(sensors.Depth)
+    return sensors
 
     // get_sensors();
     // datafield1.textContent
@@ -34,8 +36,8 @@ function GamepadMode() {
     if (gamepadIndex !== undefined) {
         // a gamepad is connected and has an index
         const myGamepad = navigator.getGamepads()[gamepadIndex];
-        console.log({ "buttons": myGamepad.buttons.map(e => e.value) })
-        console.log(JSON.stringify({ "axes": myGamepad.axes.map(e => parseFloat(e.value)) }))
+        // console.log({ "buttons": myGamepad.buttons.map(e => e.value) })
+        // console.log(JSON.stringify({ "axes": myGamepad.axes.map(e => parseFloat(e.value)) }))
 
         const options = {
             method: 'POST',
@@ -49,7 +51,7 @@ function GamepadMode() {
         };
         fetch('http://169.254.127.13:8000/controller_status', options)
             .then(response => response.json())
-            .then(response => console.log(response))
+            // .then(response => console.log(response))
             .catch(err => console.error(err));
     }
     else {
@@ -57,11 +59,44 @@ function GamepadMode() {
     }
 }
 
+async function AutoDepthMode() {
+    // // document.getElementById("depth").value
+    // console.log(document.getElementById("depth").value)
+    // console.log(document.getElementById("depthOn").checked)
+    let sensors = await get_sensors()
+    console.log(sensors)
+    console.log(sensors.Depth)
+    // if (gamepadIndex !== undefined) {
+    //     // a gamepad is connected and has an index
+    //     const myGamepad = navigator.getGamepads()[gamepadIndex];
+    //     // console.log({ "buttons": myGamepad.buttons.map(e => e.value) })
+    //     // console.log(JSON.stringify({ "axes": myGamepad.axes.map(e => parseFloat(e.value)) }))
+
+    //     const options = {
+    //         method: 'POST',
+    //         headers: {
+    //             "Content-type": "application/json"
+    //         },
+    //         body: JSON.stringify({
+    //             "axes": myGamepad.axes,
+    //             "buttons": myGamepad.buttons.map(e => e.value)
+    //         })
+    //     };
+    //     fetch('http://169.254.127.13:8000/controller_status', options)
+    //         .then(response => response.json())
+    //         // .then(response => console.log(response))
+    //         .catch(err => console.error(err));
+    // }
+    // else {
+    //     console.log("Gamepad not detected")
+    // }
+}
+
 
 // main loop for the system
 setInterval(() => {
     let mode = displayRadioValue();
-    console.log(mode)
+    // console.log(mode)
     switch (mode) {
         case "Controller":
             document.getElementById("CurrentMode").innerHTML = "Current Mode: Controller";
@@ -69,6 +104,7 @@ setInterval(() => {
             break;
         case "AutoDepth":
             document.getElementById("CurrentMode").innerHTML = "Current Mode: AutoDepth";
+            AutoDepthMode()
             break;
         case "AutoHeading":
             document.getElementById("CurrentMode").innerHTML = "Current Mode: AutoHeading";
