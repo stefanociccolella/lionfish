@@ -87,15 +87,21 @@ async function AutoDepthMode() {
 
 async function AutoHeadingMode() {
     let targetDirection = document.getElementById("direction").value;
+    // Number(targetDirection)
     console.log(targetDirection)
+    console.log(typeof targetDirection)
     // console.log(document.getElementById("depth").value)
     let sensors = await getSensors();
     let compass = sensors.Compass_Heading;
+    // Number(compass)
     console.log(compass)
-    let offset = 360 - compass;
+    console.log(typeof compass)
+    let offset = 360 - (compass * 1);
     console.log(offset)
-    targetDirection = (offset + targetDirection) % 360;
+    // console.log(typeof offset)
+    targetDirection = (offset + (targetDirection * 1)) % 360;
     console.log(targetDirection)
+    // console.log(typeof targetDirection)
 
     let turn = 0;
 
