@@ -49,6 +49,7 @@ function GamepadMode() {
                 "buttons": myGamepad.buttons.map(e => e.value)
             })
         };
+        console.log(options)
         fetch('http://169.254.127.13:8000/controller_status', options)
             .then(response => response.json())
             // .then(response => console.log(response))
@@ -84,6 +85,64 @@ async function AutoDepthMode() {
     }
 }
 
+async function AutoHeadingMode() {
+    let targetDirection = document.getElementById("direction").value;
+    console.log(targetDirection)
+    // console.log(document.getElementById("depth").value)
+    let sensors = await getSensors();
+    let compass = sensors.Compass_Heading;
+    console.log(compass)
+    let offset = 360 - compass;
+    console.log(offset)
+    targetDirection = (offset + targetDirection) % 360;
+    console.log(targetDirection)
+
+    let turn = 0;
+
+    if (targetDirection < 180) {
+        turn = targetDirection
+    }
+    else {
+        turn = targetDirection - 360
+    }
+    console.log(turn)
+
+    if ((Math.abs(turn) < 15) && (document.getElementById("headingOn").checked)) {
+        let instruction = [0, .2, 0, 0]
+        const options = {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+                "axes": instruction,
+                "buttons": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            })
+        };
+        fetch('http://169.254.127.13:8000/controller_status', options)
+            .then(response => response.json())
+            // .then(response => console.log(response))
+            .catch(err => console.error(err));
+    }
+    else if (document.getElementById("headingOn").checked) {
+        let instruction = [0, 0, 1, 0].map(x => x * turn / (1000 + Math.abs(turn)))
+        const options = {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+                "axes": instruction,
+                "buttons": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            })
+        };
+        fetch('http://169.254.127.13:8000/controller_status', options)
+            .then(response => response.json())
+            // .then(response => console.log(response))
+            .catch(err => console.error(err));
+    }
+}
+
 
 // main loop for the system
 setInterval(() => {
@@ -100,6 +159,7 @@ setInterval(() => {
             break;
         case "AutoHeading":
             document.getElementById("CurrentMode").innerHTML = "Current Mode: AutoHeading";
+            AutoHeadingMode()
             break;
     }
 
