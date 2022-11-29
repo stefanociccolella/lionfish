@@ -22,6 +22,7 @@ class gamepad(BaseModel):
     axes: list[float]
     buttons: list[int]
 
+
 app = FastAPI()
 app.sensor_data = []
 
@@ -39,11 +40,13 @@ app.add_middleware(
 )
 templates = Jinja2Templates(directory="templates")
 kill_cam = 0
-arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=.1)
+arduino = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, timeout=0.1)
+
 
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("index.htm", context={"request": request})
+
 
 # random comment
 # @app.get("/esp")
@@ -53,28 +56,48 @@ async def read_root(request: Request):
 #     data = arduino.readline()
 #     return str(data)
 
+
 @app.post("/controller_status")
 async def controller_data(gamepad: gamepad):
     # t1 = time.time_ns()
     # print(np.append(np.array(gamepad.axes),gamepad.buttons[4], gamepad.buttons[6]))
-    control = np.append(gamepad.axes, [gamepad.buttons[4], gamepad.buttons[6]])
-    control = np.round(control, decimals = 2)
-    identity = np.array([
-        [0,0,0,-1,-1,1], 
-        [0,0,0,-1,1,-1],
-        [1,1,1,0,0,0],
-        [1,-1,1,0,0,0],
-        [-1,-1,1,0,0,0],
-        [-1,1,1,0,0,0]
-        ]).T # rewrite this so its already transposed
+    control = np.append(
+        gamepad.axes,
+        [
+            # The buttons are out of order to make the identity simplier
+            gamepad.buttons[4], # LB Button
+            gamepad.buttons[6], # LT Button
+            gamepad.buttons[1], # B Button
+            gamepad.buttons[3], # Y Button
+            gamepad.buttons[5], # RB Button
+        ],
+    )
+    control = np.round(control, decimals=2)
+    identity = np.array(
+        [
+            [0, 0, 0, -1, -1, 1, 0, 0, 0],
+            [0, 0, 0, -1, 1, -1, 0, 0, 0],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0],
+            [1, -1, 1, 0, 0, 0, 0, 0, 0],
+            [-1, -1, 1, 0, 0, 0, 0, 0, 0],
+            [-1, 1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0, 0], # lazer
+            [0, 0, 0, 0, 0, 0, 0, 1, 0], # light
+            [0, 0, 0, 0, 0, 0, 0, 0, 1], # harpoon
+        ]
+    ).T  # rewrite this so its already transposed
+    print(identity)
     control = np.dot(control, identity)
     # print('from pi', np.array2string(control.astype(single),separator=',').encode('utf-8'))
     # arduino.write(control.astype(single).tobytes)
+    print(control)
 
-    arduino.write(np.array2string(control.astype(single), separator=',').encode('utf-8'))
+    arduino.write(
+        np.array2string(control.astype(single), separator=",").encode("utf-8")
+    )
     # while True:                                                          #random test, that whether data is updated
-    time.sleep(.1)#delay
-    dat=arduino.readline()#read a line data
+    time.sleep(0.1)  # delay
+    dat = arduino.readline()  # read a line data
     with open("data.json", "w") as f:
         f.write(dat.decode())
     # print('from esp', dat)
@@ -91,16 +114,18 @@ async def controller_data(gamepad: gamepad):
     # print(control)
     # print(control.tobytes())
 
+
 @app.get("/get_sensors")
 async def get_sensors():
     with open("data.json", "r") as f:
-        return (f.read())
+        return f.read()
+
 
 # TODO bring USB ethernet dongle
 
 # check to see if this is the main thread of execution
-if __name__ == '__main__':
-    
+if __name__ == "__main__":
+
     global count_keep_alive
     p = Process(target=start_camera)
     p.start()

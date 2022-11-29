@@ -11,14 +11,14 @@ window.addEventListener('gamepaddisconnected', (event) => {
     gamepadStatus.textContent = "Gamepad Not Detected"
 });
 
-async function get_sensors() {
+async function getSensors() {
     let response = await fetch('http://169.254.127.13:8000/get_sensors').then(response => response.json());
     let sensors = JSON.parse(response.toString().replace(/'/g, '"'));
     document.getElementById("Leak").innerHTML = sensors.Leak;
     // console.log(sensors.Depth)
     return sensors
 
-    // get_sensors();
+    // getSensors();
     // datafield1.textContent
 }
 
@@ -60,36 +60,28 @@ function GamepadMode() {
 }
 
 async function AutoDepthMode() {
-    // // document.getElementById("depth").value
-    // console.log(document.getElementById("depth").value)
-    // console.log(document.getElementById("depthOn").checked)
-    let sensors = await get_sensors()
-    console.log(sensors)
-    console.log(sensors.Depth)
-    // if (gamepadIndex !== undefined) {
-    //     // a gamepad is connected and has an index
-    //     const myGamepad = navigator.getGamepads()[gamepadIndex];
-    //     // console.log({ "buttons": myGamepad.buttons.map(e => e.value) })
-    //     // console.log(JSON.stringify({ "axes": myGamepad.axes.map(e => parseFloat(e.value)) }))
-
-    //     const options = {
-    //         method: 'POST',
-    //         headers: {
-    //             "Content-type": "application/json"
-    //         },
-    //         body: JSON.stringify({
-    //             "axes": myGamepad.axes,
-    //             "buttons": myGamepad.buttons.map(e => e.value)
-    //         })
-    //     };
-    //     fetch('http://169.254.127.13:8000/controller_status', options)
-    //         .then(response => response.json())
-    //         // .then(response => console.log(response))
-    //         .catch(err => console.error(err));
-    // }
-    // else {
-    //     console.log("Gamepad not detected")
-    // }
+    if (document.getElementById("depthOn").checked) {
+        let targetDepth = document.getElementById("depth").value;
+        // console.log(document.getElementById("depth").value)
+        let sensors = await getSensors()
+        // console.log(sensors.Depth)
+        let instruction = [0, 0, 0, 0, -1, 1, 0, 0, 0].map(x => x * (sensors.Depth - targetDepth) / (10 + Math.abs((sensors.Depth - targetDepth))))
+        console.log(instruction);
+        const options = {
+            method: 'POST',
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+                "axes": [0, 0, 0, 0],
+                "buttons": instruction
+            })
+        };
+        fetch('http://169.254.127.13:8000/controller_status', options)
+            .then(response => response.json())
+            // .then(response => console.log(response))
+            .catch(err => console.error(err));
+    }
 }
 
 
@@ -111,7 +103,7 @@ setInterval(() => {
             break;
     }
 
-    get_sensors();
+    getSensors();
 
 }, 500) // print axes 10 times per second
 
