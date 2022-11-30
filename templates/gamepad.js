@@ -131,7 +131,7 @@ async function AutoHeadingMode() {
             .catch(err => console.error(err));
     }
     else if (document.getElementById("headingOn").checked) {
-        let instruction = [0, 0, 1, 0].map(x => x * turn / (1000 + Math.abs(turn)))
+        let instruction = [0, 0, 1, 0].map(x => x * turn / (500 + Math.abs(turn)))
         const options = {
             method: 'POST',
             headers: {
