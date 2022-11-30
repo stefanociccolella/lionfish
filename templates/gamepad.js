@@ -65,8 +65,9 @@ async function AutoDepthMode() {
         let targetDepth = document.getElementById("depth").value;
         // console.log(document.getElementById("depth").value)
         let sensors = await getSensors()
-        // console.log(sensors.Depth)
-        let instruction = [0, 0, 0, 0, -1, 1, 0, 0, 0].map(x => x * (sensors.Depth - targetDepth) / (10 + Math.abs((sensors.Depth - targetDepth))))
+        console.log(sensors.Depth)
+        let instruction = [0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].map(x => x * (sensors.Depth - targetDepth) / (10 + Math.abs((sensors.Depth - targetDepth))))
+        // [0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]       
         console.log(instruction);
         const options = {
             method: 'POST',
@@ -78,6 +79,7 @@ async function AutoDepthMode() {
                 "buttons": instruction
             })
         };
+        console.log(options)
         fetch('http://169.254.127.13:8000/controller_status', options)
             .then(response => response.json())
             // .then(response => console.log(response))
@@ -125,6 +127,7 @@ async function AutoHeadingMode() {
                 "buttons": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             })
         };
+        console.log(options);
         fetch('http://169.254.127.13:8000/controller_status', options)
             .then(response => response.json())
             // .then(response => console.log(response))
@@ -142,6 +145,7 @@ async function AutoHeadingMode() {
                 "buttons": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             })
         };
+        console.log(options);
         fetch('http://169.254.127.13:8000/controller_status', options)
             .then(response => response.json())
             // .then(response => console.log(response))

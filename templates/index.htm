@@ -24,7 +24,7 @@
     .box {
       outline-style: solid;
       float: left;
-      width: 20vw;
+      width: 15vw;
     }
 
     .data {
@@ -41,14 +41,82 @@
   <center><img src="http://169.254.127.13:7000/stream.mjpg" width="640" height="480"></center>
   <div id="gamepadStatus">Gamepad Not Detected</div>
 
+  <div class="box" id="CurrentMode"></div>
+  <br><br><br>
   <div class="column">
     <p>Leak (1 is leak detected)</p>
     <p class="data" id="Leak">?</p>
   </div>
   </div>
 
+  <div class="column">
+    <p>Compass Heading (deg)</p>
+    <p class="data" id="Compass_Heading">?</p>
+  </div>
+  </div>
 
-<br><br><br>
+  <div class="column">
+    <p>Battery Monitor 1</p>
+    <p class="data" id="batterymonitor1">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Acceleration X (m/s^2)</p>
+    <p class="data" id="Acceleration_X">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Gyroscope X (rad/s)</p>
+    <p class="data" id="Gyroscope_X">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Magnometer X (rad/s)</p>
+    <p class="data" id="Magnometer_X">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Total Voltage (V)</p>
+    <p class="data" id="batterymonitorT">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Depth (m)</p>
+    <p class="data" id="Depth">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Battery Monitor 2</p>
+    <p class="data" id="batterymonitor2">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Acceleration Y (m/s^2)</p>
+    <p class="data" id="Acceleration_Y">?</p>
+  </div>
+  </div>
+  
+
+  <div class="column">
+    <p>Gyroscope X (rad/s)</p>
+    <p class="data" id="Gyroscope_Y">?</p>
+  </div>
+  </div>
+
+  <div class="column">
+    <p>Magnometer X (rad/s)</p>
+    <p class="data" id="Magnometer_Y">?</p>
+  </div>
+  </div>
+
+  <br><br><br>
   <fieldset>
     <legend style="float:left">Please select Mode:</legend><br>
 

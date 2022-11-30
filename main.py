@@ -20,7 +20,7 @@ import ast
 # global sensor_data = []
 class gamepad(BaseModel):
     axes: list[float]
-    buttons: list[int]
+    buttons: list[float]
 
 
 app = FastAPI()
@@ -59,6 +59,7 @@ async def read_root(request: Request):
 
 @app.post("/controller_status")
 async def controller_data(gamepad: gamepad):
+    print(gamepad)
     # t1 = time.time_ns()
     # print(np.append(np.array(gamepad.axes),gamepad.buttons[4], gamepad.buttons[6]))
     control = np.append(
