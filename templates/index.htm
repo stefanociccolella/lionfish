@@ -13,10 +13,14 @@
     p {
       display: inline;
     }
+
     .column {
       float: left;
-      width: 20vw;
+      width: 15vw;
+      border: 2px groove;
+      margin: auto;
     }
+
     .box {
       outline-style: solid;
       float: left;
@@ -36,16 +40,17 @@
   </center>
   <center><img src="http://169.254.127.13:7000/stream.mjpg" width="640" height="480"></center>
   <div id="gamepadStatus">Gamepad Not Detected</div>
+
   <div class="column">
-    <div class="box">
-      <p>Leak (1 is leak detected)</p>
-      <p class="data" id="Leak">?</p>
-    </div>
-    <div class="box" id="CurrentMode"></div>
+    <p>Leak (1 is leak detected)</p>
+    <p class="data" id="Leak">?</p>
+  </div>
   </div>
 
+
+<br><br><br>
   <fieldset>
-    <legend style="float:left">Please select Mode:</legend>
+    <legend style="float:left">Please select Mode:</legend><br>
 
       <input type="radio" id="Controller" value="Controller" name="Mode" checked="checked">
       <label for="Controller">Controller</label><br>
@@ -57,16 +62,16 @@
   </fieldset>
   <fieldset>
     <legend>AutoDepth:</legend>
-    <input id="depth" type="number" value="0"  min="0"/>
+    <input id="depth" type="number" value="0" min="0" />
     <label for="depthOn">Turn On AutoDepth</label>
-    <input  id="depthOn" type="checkbox" />
+    <input id="depthOn" type="checkbox" />
   </fieldset>
 
   <fieldset>
     <legend>AutoHeading:</legend>
-    <input id="direction" type="number" value="0"  min="0" max="360"/>
+    <input id="direction" type="number" value="0" min="0" max="360" />
     <label for="headingOn">Turn On AutoHeading</label>
-    <input  id="headingOn" type="checkbox" />
+    <input id="headingOn" type="checkbox" />
   </fieldset>
 </body>
 
