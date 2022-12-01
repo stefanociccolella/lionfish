@@ -1,0 +1,106 @@
+//esp32 12 bit 4096
+//cell min/max/ref voltage : 3.3v/4.2v/2.9v
+
+double Vout_Cell1; double Vout_Cell2; double Vout_Cell3; double Vout_Cell4; double V_tot;
+int Bat_en = 16; // Battery enable pin 16
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(9600);
+pinMode(Bat_en, OUTPUT); // initializing output pin
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+ digitalWrite(Bat_en, HIGH); //turning on enable pin to allow sampling after reaching steady state
+ delay(4000);
+  Cell1();
+  Cell2();
+  Cell3();
+  Cell4();
+  Vbat();
+  delay(1500);
+  digitalWrite(Bat_en, LOW); // turning off sampling 
+  delay(3000);
+}
+
+void Cell1(){
+//Cell 1 Status
+float Cell_1 = analogRead(4); // reading voltage
+Vout_Cell1 = Cell_1 * (3.30/4096.0) *(4.20/2.9) + 0.18;//cell 1 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration 
+
+if (Vout_Cell1 < 3.3){
+  Serial.println ("Cell 1 Critical"); 
+}
+  else if (Vout_Cell1 <= 3.4){
+   Serial.print ("Cell 1 Low :"); 
+   Serial.println (Vout_Cell1); 
+  }
+  else {
+  Serial.print ("Cell 1 Voltage:"); 
+  Serial.println (Vout_Cell1);
+  }
+
+}
+
+void Cell2(){
+//Cell 2 Status
+float Cell_2 = analogRead(0); // reading voltage
+Vout_Cell2 = Cell_2 * (3.30/4096.0) *(4.20/2.8) + 0.19;//cell 2 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration 
+
+  if (Vout_Cell1 < 3.3){
+   Serial.println ("Cell 2 Critical"); 
+} 
+  else if (Vout_Cell2 <= 3.4){
+   Serial.print ("Cell 2 Low :"); 
+   Serial.println (Vout_Cell2); 
+  }
+  else {
+  Serial.print ("Cell 2 Voltage:"); 
+  Serial.println (Vout_Cell2);
+  }
+  
+}
+
+void Cell3(){
+//Cell 3 Status
+float Cell_3 = analogRead(2);// reading voltage
+ Vout_Cell3 = Cell_3 * (3.30/4096.0) *(4.20/2.9) + 0.17;//cell 3 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration 
+
+  if (Vout_Cell1 < 3.3){
+   Serial.println ("Cell 3 Critical"); 
+} 
+  else if (Vout_Cell3 <= 3.4){
+   Serial.print ("Cell 3 Low :"); 
+   Serial.println (Vout_Cell3); 
+  }
+  else {
+  Serial.print ("Cell 3 Voltage:"); 
+  Serial.println (Vout_Cell3);
+  }
+  
+}
+
+void Cell4(){
+//Cell 4 Status
+float Cell_4 = analogRead(15);// reading voltage
+Vout_Cell4 = Cell_4 * (3.30/4096.0) *(4.20/2.9) + 0.17;//cell 4 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration 
+
+  if (Vout_Cell4 < 3.3){
+   Serial.println ("Cell 4 Critical"); 
+} 
+  else if (Vout_Cell4 <= 3.4){
+   Serial.print ("Cell 4 Low :"); 
+   Serial.println (Vout_Cell4); 
+  }
+  else {
+  Serial.print ("Cell 4 Voltage:"); 
+  Serial.println (Vout_Cell4);
+  }
+
+}
+void Vbat (){
+ V_tot = Vout_Cell1 + Vout_Cell2 + Vout_Cell3 + Vout_Cell4; //sum of all cells
+Serial.print("Battery Voltage: ");
+Serial.println(V_tot);
+}

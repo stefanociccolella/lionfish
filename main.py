@@ -48,7 +48,7 @@ async def read_root(request: Request):
     return templates.TemplateResponse("index.htm", context={"request": request})
 
 
-# random comment
+# random comments
 # @app.get("/esp")
 # async def write_read(position):
 #     arduino.write(bytes(position, 'utf-8'))
@@ -74,6 +74,7 @@ async def controller_data(gamepad: gamepad):
         ],
     )
     control = np.round(control, decimals=2)
+    print(control)
     identity = np.array(
         [
             [0, 0, 0, -1, -1, 1, 0, 0, 0],
@@ -87,7 +88,7 @@ async def controller_data(gamepad: gamepad):
             [0, 0, 0, 0, 0, 0, 0, 0, 1], # harpoon
         ]
     ).T  # rewrite this so its already transposed
-    print(identity)
+    # print(identity)
     control = np.dot(control, identity)
     # print('from pi', np.array2string(control.astype(single),separator=',').encode('utf-8'))
     # arduino.write(control.astype(single).tobytes)

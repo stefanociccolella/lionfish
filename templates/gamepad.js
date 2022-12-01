@@ -15,6 +15,30 @@ async function getSensors() {
     let response = await fetch('http://169.254.127.13:8000/get_sensors').then(response => response.json());
     let sensors = JSON.parse(response.toString().replace(/'/g, '"'));
     document.getElementById("Leak").innerHTML = sensors.Leak;
+    document.getElementById("Compass_Heading").innerHTML = sensors.Compass_Heading;
+    document.getElementById("Cell_1").innerHTML = sensors.Cell_1;
+    document.getElementById("Acceleration_X").innerHTML = sensors.Acceleration_X;
+    document.getElementById("Gyroscope_X").innerHTML = sensors.Gyroscope_X;
+    document.getElementById("Magnometer_X").innerHTML = sensors.Magnometer_X;
+    document.getElementById("Battery_Voltage").innerHTML = sensors.Battery_Voltage;
+    document.getElementById("Depth").innerHTML = sensors.Depth;
+    document.getElementById("Cell_2").innerHTML = sensors.Cell_2;
+    document.getElementById("Acceleration_Y").innerHTML = sensors.Acceleration_Y;
+    document.getElementById("Gyroscope_Y").innerHTML = sensors.Gyroscope_Y;
+    document.getElementById("Magnometer_Y").innerHTML = sensors.Magnometer_Y;
+    document.getElementById("Internal_Temperature").innerHTML = sensors.Internal_Temperature;
+    document.getElementById("Pressure").innerHTML = sensors.Pressure;
+    document.getElementById("Cell_3").innerHTML = sensors.Cell_3;
+    document.getElementById("Acceleration_Z").innerHTML = sensors.Acceleration_Z;
+    document.getElementById("Gyroscope_Z").innerHTML = sensors.Gyroscope_Z;
+    document.getElementById("Magnometer_Z").innerHTML = sensors.Magnometer_Z;
+    document.getElementById("IMU_Temperature").innerHTML = sensors.IMU_Temperature;
+    document.getElementById("Water_Temperature").innerHTML = sensors.Water_Temperature;
+    document.getElementById("Cell_4").innerHTML = sensors.Cell_4;
+
+
+
+
     // console.log(sensors.Depth)
     return sensors
 
@@ -66,7 +90,7 @@ async function AutoDepthMode() {
         // console.log(document.getElementById("depth").value)
         let sensors = await getSensors()
         console.log(sensors.Depth)
-        let instruction = [0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].map(x => x * (sensors.Depth - targetDepth) / (10 + Math.abs((sensors.Depth - targetDepth))))
+        let instruction = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0].map(x => x * (sensors.Depth - targetDepth) / (10 + Math.abs((sensors.Depth - targetDepth))))
         // [0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]       
         console.log(instruction);
         const options = {
@@ -178,5 +202,3 @@ setInterval(() => {
 }, 500) // print axes 10 times per second
 
 
-//TODO Round controller to nearest 5%
-//TODO anything under 10% should default to 0%

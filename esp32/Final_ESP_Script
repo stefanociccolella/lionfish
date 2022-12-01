@@ -1,0 +1,326 @@
+#include <stdlib.h>
+#include <ESP32Servo.h>
+#include <Wire.h>
+#include "Adafruit_MCP9808.h"
+#include "MS5837.h"
+#include "MPU9250.h"
+
+
+//Gyro Setup
+#include "MPU9250.h"
+// an MPU9250 object with the MPU-9250 sensor on I2C bus 0 with address 0x68
+MPU9250 IMU(Wire, 0x68);
+int status;
+
+
+//Depth Sensor
+MS5837 DepthSensor;
+
+
+Servo myservo;         // create servo object to control a servo
+                       // 16 servo objects can be created on the ESP32
+int incomingByte = 0;  // for incoming serial data
+// Recommended PWM GPIO pins on the ESP32 include 2,4,12-19,21-23,25-27,32-33
+// Possible PWM GPIO pins on the ESP32-S2: 0(used by on-board button),1-17,18(used by on-board LED),19-21,26,33-42
+
+//Temp Sensor Setup
+Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
+
+//Battery Monitor Setup
+int Bat_en = 16; // Battery enable pin 16
+
+
+//Leak Sensor setup
+int ledPin = 2;    // LED
+int leakPin = 13;  // Leak Signal Pin
+int leak = 0;      // 0 = Dry , 1 = Leak
+
+//LED, Laser and Harpoon pin setup
+int lightPin = 18;
+int laserPin = 17;
+// HarpoonPin =
+
+//Thruster setup
+int servoPin1 = 27;  // 5
+int servoPin2 = 14;  // 9
+int servoPin3 = 32;  // 6
+int servoPin4 = 25;  // 3
+int servoPin5 = 26;  // 10
+int servoPin6 = 33;  // 11 change idle`
+
+Servo servo1;
+Servo servo2;
+Servo servo3;
+Servo servo4;
+Servo servo5;
+Servo servo6;
+
+int CCW = 1400;
+int CW = 1520;
+int Idle = 1480;    // 1480
+int IdleTB = 1485;  // 1475
+const int numChars = 9;
+char receivedChars[numChars];
+float motorinstructions[numChars];
+
+// float sensorArray[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };  //Sensor array
+
+// boolean printData = false;
+char *string, *stopstring;
+
+char startMarker = '[';
+char endMarker = ']';
+char delimiter = ',';
+
+void setup() {
+
+  Serial.begin(115200);
+  Serial.println("<Arduino is ready>");
+
+
+  //Leak sensor setup
+  pinMode(ledPin, OUTPUT);
+  pinMode(leakPin, INPUT);
+
+  //LED, Laser, and Harpoon Setup
+  pinMode(lightPin, OUTPUT);
+  pinMode(laserPin, OUTPUT);
+  // pinMode(HarpoonPin, OUTPUT);
+
+  //Gyro Setup
+  // while (!Serial) {}
+
+  // start communication with IMU
+  status = IMU.begin();
+  // if (status < 0) {
+  //   Serial.println("IMU initialization unsuccessful");
+  //   Serial.println("Check IMU wiring or try cycling power");
+  //   Serial.print("Status: ");
+  //   Serial.println(status);
+  //   while (1) {}
+  // }
+  // setting the accelerometer full scale range to +/-8G
+  IMU.setAccelRange(MPU9250::ACCEL_RANGE_8G);
+  // setting the gyroscope full scale range to +/-500 deg/s
+  IMU.setGyroRange(MPU9250::GYRO_RANGE_500DPS);
+  // setting DLPF bandwidth to 20 Hz
+  IMU.setDlpfBandwidth(MPU9250::DLPF_BANDWIDTH_20HZ);
+  // setting SRD to 19 for a 50 Hz update rate
+  IMU.setSrd(19);
+
+  //Battery Monitor Setup
+  pinMode(Bat_en, OUTPUT); // initializing output pin
+
+
+  //Temp Sensor Setup
+  !tempsensor.begin(0x18);
+  tempsensor.setResolution(3);
+
+
+  //Depth Sensor
+  Wire.begin();
+  !DepthSensor.init();
+  DepthSensor.setModel(MS5837::MS5837_02BA);
+  DepthSensor.setFluidDensity(997);  // kg/m^3 (freshwater, 1029 for seawater)
+
+  //Thruster setup
+
+  // Allow allocation of all timers
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+
+  servo1.setPeriodHertz(50);  // standard 50 hz servo
+  servo2.setPeriodHertz(50);  // standard 50 hz servo
+  servo3.setPeriodHertz(50);  // standard 50 hz servo
+  servo4.setPeriodHertz(50);  // standard 50 hz servo
+  servo5.setPeriodHertz(50);  // standard 50 hz servo
+  servo6.setPeriodHertz(50);  // standard 50 hz servo
+
+  servo1.attach(servoPin1);
+  servo2.attach(servoPin2);
+  servo3.attach(servoPin3);
+  servo4.attach(servoPin4);
+  servo5.attach(servoPin5);
+  servo6.attach(servoPin6);
+
+  servo1.writeMicroseconds(Idle);
+  servo2.writeMicroseconds(Idle);
+  servo3.writeMicroseconds(Idle);
+  servo4.writeMicroseconds(Idle);
+  servo5.writeMicroseconds(Idle);
+  servo6.writeMicroseconds(IdleTB);
+}
+
+void loop() {
+  static boolean recvInProgress = false;
+  int ndx = 0;
+  char rc;
+  int i = 0;
+  // sensorArray =
+
+  // incoming instructions
+  while (Serial.available() > 0) {  // && printData == false) {
+    rc = Serial.read();
+    if (recvInProgress == true) {
+      if (rc == endMarker) {
+        motorinstructions[i] = strtof(receivedChars, &stopstring);  // cast whole array to float
+        recvInProgress = false;
+        ndx = 0;
+
+        servo1.writeMicroseconds(190 * motorinstructions[0] + Idle);
+        servo2.writeMicroseconds(190 * motorinstructions[1] + Idle);
+        servo3.writeMicroseconds(190 * motorinstructions[2] + Idle);
+        servo4.writeMicroseconds(190 * motorinstructions[3] + Idle);
+        servo5.writeMicroseconds(190 * motorinstructions[4] + Idle);
+        servo6.writeMicroseconds(190 * motorinstructions[5] + IdleTB);
+        digitalWrite(lightPin, motorinstructions[6]);
+        digitalWrite(laserPin, motorinstructions[7]);
+        // digitalWrite(HarpoonPin, motorinstructions[8]);
+        readSensors();
+
+        // printData = true;
+      }
+      if (rc == delimiter) {
+        motorinstructions[i] = strtof(receivedChars, &stopstring);  // cast whole array to float
+        memset(receivedChars, 0, sizeof receivedChars);
+        i = i + 1;
+        ndx = 0;
+      } else {
+        receivedChars[ndx] = rc;
+        ndx++;
+        if (ndx >= numChars) {
+          ndx = numChars - 1;
+        }
+      }
+    } else if (rc == startMarker) {
+      recvInProgress = true;
+    }
+  }
+}
+
+void readSensors() {
+  //Leak Sensor
+  leak = digitalRead(leakPin);  // Read the Leak Sensor Pin
+  digitalWrite(ledPin, leak);   // Sets the LED to the Leak Sensor's Value (if 1, leak detected)
+  // sensorArray[0] = leak;
+
+  //Temp Sensor
+  // sensorArray[1] = tempsensor.readTempC();
+
+  //Depth sensor
+  DepthSensor.read();
+  // sensorArray[2] = DepthSensor.pressure();
+  // sensorArray[3] = DepthSensor.temperature();
+  // sensorArray[4] = DepthSensor.depth();
+  // sensorArray[5] = DepthSensor.altitude();
+
+  //Gyro Data
+  // read the sensor
+  IMU.readSensor();
+  // sensorArray[6] = IMU.getAccelX_mss();
+  // sensorArray[7] = IMU.getAccelY_mss();
+  // sensorArray[8] = IMU.getAccelZ_mss();
+  // sensorArray[9] = IMU.getGyroX_rads();
+  // sensorArray[10] = IMU.getGyroY_rads();
+  // sensorArray[11] = IMU.getGyroZ_rads();
+  // sensorArray[12] = IMU.getMagX_uT();
+  // sensorArray[13] = IMU.getMagY_uT();
+  // sensorArray[14] = IMU.getMagZ_uT();
+  // sensorArray[15] = IMU.getTemperature_C();
+
+
+  Serial.print("{");
+  Serial.print("'Leak':'");
+  Serial.print(leak);
+  Serial.print("',");
+
+  Serial.print("'Internal_Temperature':'");
+  Serial.print(tempsensor.readTempC());
+  Serial.print("',");
+
+  Serial.print("'Pressure':'");
+  Serial.print(DepthSensor.pressure());
+  Serial.print("',");
+  Serial.print("'Water_Temperature':'");
+  Serial.print(DepthSensor.temperature());
+  Serial.print("',");
+  Serial.print("'Depth':'");
+  Serial.print(DepthSensor.depth());
+  Serial.print("',");
+
+  Serial.print("'Acceleration_X':'");
+  Serial.print(IMU.getAccelX_mss());
+  Serial.print("',");
+  Serial.print("'Acceleration_Y':'");
+  Serial.print(IMU.getAccelY_mss());
+  Serial.print("',");
+  Serial.print("'Acceleration_Z':'");
+  Serial.print(IMU.getAccelZ_mss());
+  Serial.print("',");
+
+  Serial.print("'Gyroscope_X':'");
+  Serial.print(IMU.getGyroX_rads());
+  Serial.print("',");
+  Serial.print("'Gyroscope_Y':'");
+  Serial.print(IMU.getGyroY_rads());
+  Serial.print("',");
+  Serial.print("'Gyroscope_Z':'");
+  Serial.print(IMU.getGyroZ_rads());
+  Serial.print("',");
+
+  Serial.print("'Magnometer_X':'");
+  Serial.print(IMU.getMagX_uT());
+  Serial.print("',");
+  Serial.print("'Magnometer_Y':'");
+  Serial.print(IMU.getMagY_uT());
+  Serial.print("',");
+
+  float heading = ((atan2(IMU.getMagX_uT(), IMU.getMagY_uT()) * 180) / 3.14159)+90;
+  if (heading < 0) {
+    heading = 360 + heading;
+  }
+  Serial.print("'Compass_Heading':'");
+  Serial.print(heading);
+  Serial.print("',");
+
+  Serial.print("'Magnometer_Z':'");
+  Serial.print(IMU.getMagZ_uT());
+  Serial.print("',");
+
+
+  digitalWrite(Bat_en, HIGH); //turning on enable pin to allow sampling after reaching steady state
+  float Cell1= analogRead(4) * (3.30/4096.0) *(4.20/2.9) + 0.18;//cell 1 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration
+  Serial.print("'Cell_1':'");
+  Serial.print(Cell1);
+  Serial.print("',");
+
+  digitalWrite(Bat_en, HIGH); //turning on enable pin to allow sampling after reaching steady state
+  float Cell2= analogRead(0) * (3.30/4096.0) *(4.20/2.8) + 0.19;//cell 1 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration
+  Serial.print("'Cell_2':'");
+  Serial.print(Cell2);
+  Serial.print("',");
+
+  digitalWrite(Bat_en, HIGH); //turning on enable pin to allow sampling after reaching steady state
+  float Cell3= analogRead(3) * (3.30/4096.0) *(4.20/2.9) + 0.17;//cell 1 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration
+  Serial.print("'Cell_3':'");
+  Serial.print(Cell3);
+  Serial.print("',");
+
+  digitalWrite(Bat_en, HIGH); //turning on enable pin to allow sampling after reaching steady state
+  float Cell4= analogRead(15) * (3.30/4096.0) *(4.20/2.9) + 0.17;//cell 1 voltage/ converting raw value into 3.3v domain/ adjusting ratio/ adding calibration
+  Serial.print("'Cell_4':'");
+  Serial.print(Cell4);
+  Serial.print("',");
+
+
+  float V_tot = Cell1 + Cell2 + Cell3 + Cell4;
+  Serial.print("'Battery_Voltage':'");
+  Serial.print(V_tot);
+  Serial.print("',");
+
+  Serial.print("'IMU_Temperature':'");
+  Serial.print(IMU.getTemperature_C());
+  Serial.print("'}");
+}
