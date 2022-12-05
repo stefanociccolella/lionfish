@@ -13,6 +13,7 @@ window.addEventListener('gamepaddisconnected', (event) => {
 
 async function getSensors() {
     let response = await fetch('http://169.254.127.13:8000/get_sensors').then(response => response.json());
+    console.log(response.toString());
     let sensors = JSON.parse(response.toString().replace(/'/g, '"'));
     document.getElementById("Leak").innerHTML = sensors.Leak;
     document.getElementById("Compass_Heading").innerHTML = sensors.Compass_Heading;

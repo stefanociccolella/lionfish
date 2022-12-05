@@ -17,14 +17,12 @@ import ast
 
 # BaseConfig.arbitrary_types_allowed = True
 
-# global sensor_data = []
 class gamepad(BaseModel):
     axes: list[float]
     buttons: list[float]
 
 
 app = FastAPI()
-app.sensor_data = []
 
 origins = [
     "http://localhost",
@@ -59,7 +57,7 @@ async def read_root(request: Request):
 
 @app.post("/controller_status")
 async def controller_data(gamepad: gamepad):
-    print(gamepad)
+    # print(gamepad)
     # t1 = time.time_ns()
     # print(np.append(np.array(gamepad.axes),gamepad.buttons[4], gamepad.buttons[6]))
     control = np.append(
@@ -92,14 +90,22 @@ async def controller_data(gamepad: gamepad):
     control = np.dot(control, identity)
     # print('from pi', np.array2string(control.astype(single),separator=',').encode('utf-8'))
     # arduino.write(control.astype(single).tobytes)
-    print(control)
+    # print(control)
+
+    arduinoTest = np.array2string(control.astype(single), separator=",").encode("utf-8")
+    print(arduinoTest)
 
     arduino.write(
-        np.array2string(control.astype(single), separator=",").encode("utf-8")
+        arduinoTest
+        # np.array2string(control.astype(single), separator=",").encode("utf-8")
     )
+
     # while True:                                                          #random test, that whether data is updated
     time.sleep(0.1)  # delay
     dat = arduino.readline()  # read a line data
+
+    print(dat)
+    
     with open("data.json", "w") as f:
         f.write(dat.decode())
     # print('from esp', dat)
