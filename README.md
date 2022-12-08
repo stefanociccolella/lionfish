@@ -1,4 +1,8 @@
-# lionfish
+# Lionfish Dispatcher Drone
+
+#The following are just some notes taken during the programming process. Please ignore. 
+
+#lionfish
 # 192.168.4.38
 # 192.168.5.222
 # 169.254.127.13
